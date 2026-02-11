@@ -9,6 +9,7 @@
 - Chuyển đổi tức thì, chỉ cần `/exit` → gõ lệnh mới
 - Header hiển thị đúng mode: "API Usage Billing" vs "Claude Team"
 - Tự động backup/restore OAuth token qua macOS Keychain
+- Tự động xóa rejected API keys & auto-approve khi switch
 
 ## Quick Start
 
@@ -23,6 +24,8 @@ claude-anti    # Antigravity (free)
 claude-real    # Claude Team (paid)
 ```
 
+> ⚠️ Lần đầu chạy `claude-anti`, nếu Claude Code hỏi _"Do you want to use this API key?"_ → chọn **1. Yes**.
+
 ## Hướng dẫn chi tiết
 
 👉 [claude-code-switch-guide.md](./claude-code-switch-guide.md)
@@ -33,6 +36,12 @@ claude-real    # Claude Team (paid)
 - [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) v2.1+
 - [Antigravity Manager](https://github.com/lbjlaq/Antigravity-Manager) v4.0+
 - Python 3.8+
+
+## Lưu ý quan trọng
+
+- **KHÔNG dùng `/logout`** khi chuyển đổi — chỉ dùng `/exit`
+- `claude-real` dùng `{}` cho settings.json — Claude Team mặc định đã là Opus 4.6
+- `claude-anti` tự xóa rejected API keys trong `.claude.json`
 
 ## License
 

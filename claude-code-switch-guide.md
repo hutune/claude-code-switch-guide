@@ -116,6 +116,13 @@ if mode == 'anti':
         shutil.copy2(CLAUDE_JSON, CLAUDE_BACKUP)
         del d['oauthAccount']
     d['hasCompletedOnboarding'] = True
+    # Xóa rejected keys + auto-approve API key
+    if 'customApiKeyResponses' not in d:
+        d['customApiKeyResponses'] = {'approved': [], 'rejected': []}
+    d['customApiKeyResponses']['rejected'] = []
+    api_key = os.environ.get('ANTHROPIC_API_KEY', '')
+    if api_key and api_key not in d['customApiKeyResponses'].get('approved', []):
+        d['customApiKeyResponses']['approved'] = [api_key]
     json.dump(d, open(CLAUDE_JSON, 'w'), indent=2)
     pw = keychain_get()
     if pw:
@@ -143,6 +150,11 @@ else:
 SCRIPT
 ```
 
+> [!IMPORTANT]
+> Script tự xóa `customApiKeyResponses.rejected` và thêm API key vào `approved` list.
+> Nếu Claude Code hỏi _"Do you want to use this API key?"_, chọn **1. Yes**.
+> Chỉ cần approve **1 lần duy nhất**, sau đó không hỏi lại nữa.
+
 ### Bước 2: Thêm functions vào shell
 
 Thêm vào cuối `~/.zshrc` (hoặc `~/.bashrc`):
@@ -155,6 +167,7 @@ cat >> ~/.zshrc << 'SHELL'
 unalias claude-anti claude-real 2>/dev/null
 
 claude-anti() {
+  export ANTHROPIC_API_KEY="<THAY_BẰNG_API_KEY_CỦA_BẠN>"
   python3 ~/.claude-switch.py anti
   cat > ~/.claude/settings.json << 'JSON'
 {
@@ -171,7 +184,7 @@ JSON
 
 claude-real() {
   python3 ~/.claude-switch.py real
-  echo '{"model":"claude-opus-4-6-thinking"}' > ~/.claude/settings.json
+  echo '{}' > ~/.claude/settings.json
   unset ANTHROPIC_API_KEY ANTHROPIC_BASE_URL
   echo '✅ Switched to Claude Team'
   claude "$@"
@@ -180,7 +193,11 @@ SHELL
 ```
 
 > [!IMPORTANT]
-> Nhớ thay `<THAY_BẰNG_API_KEY_CỦA_BẠN>` bằng API key từ Antigravity Manager.
+> Nhớ thay `<THAY_BẰNG_API_KEY_CỦA_BẠN>` bằng API key từ Antigravity Manager (**2 chỗ** trong `claude-anti`).
+
+> [!WARNING]
+> `claude-real` dùng `{}` cho settings.json — **KHÔNG chỉ định model**.
+> Claude Team mặc định đã là Opus 4.6. Chỉ định model sẽ bị coi là "Custom model" và gây lỗi.
 
 ### Bước 3: Load và chạy lần đầu
 
@@ -199,6 +216,7 @@ claude-real
 
 ```bash
 claude-anti
+# Lần đầu: nếu hỏi "Do you want to use this API key?" → chọn 1. Yes
 ```
 
 ---
@@ -217,7 +235,7 @@ Header: `claude-opus-4-6-thinking · API Usage Billing`
 ```bash
 claude-real
 ```
-Header: `claude-opus-4-6-thinking · Claude Team`
+Header: `Opus 4.6 · Claude Team`
 
 ### Chuyển đổi
 
@@ -232,7 +250,7 @@ claude-anti
 ```
 
 > [!CAUTION]
-> **KHÔNG dùng `/logout`** khi chuyển đổi. Chỉ dùng **`/exit`**.  
+> **KHÔNG dùng `/logout`** khi chuyển đổi. Chỉ dùng **`/exit`**.
 > `/logout` sẽ xoá OAuth token, phải `/login` lại.
 
 ---
@@ -264,8 +282,8 @@ claude-anti
 
 | Thành phần | File/Location | `claude-anti` | `claude-real` |
 |-----------|--------------|--------------|--------------|
-| API routing | `~/.claude/settings.json` | Set proxy URL + key | Xóa proxy |
-| OAuth metadata | `~/.claude.json` | Xóa `oauthAccount` | Restore `oauthAccount` |
+| API routing | `~/.claude/settings.json` | Set proxy URL + key + model | `{}` (dùng default) |
+| OAuth metadata | `~/.claude.json` | Xóa `oauthAccount`, approve API key | Restore `oauthAccount` |
 | OAuth token | macOS Keychain¹ | Backup → xóa | Restore từ backup |
 
 ¹ Service: `Claude Code-credentials`, Account: `<tên user macOS>`
@@ -294,7 +312,7 @@ claude-anti         # hoặc claude-real
 
 ### VS Code
 
-1. Mở terminal (`Ctrl+\``)
+1. Mở terminal (`` Ctrl+` ``)
 2. Chạy `claude-anti` hoặc `claude-real`
 3. Cài extension IDE (tùy chọn):
    ```
@@ -367,8 +385,11 @@ claude
 | Setup wizard xuất hiện | `hasCompletedOnboarding` bị reset | Script tự fix → chọn theme rồi dùng bình thường |
 | `claude-real` hiện "API Usage Billing" | Keychain token bị mất (do `/logout`) | Chạy `claude` → `/login` → `/exit` → thử lại |
 | `claude-anti` hiện "Claude Team" | Keychain chưa bị xóa | `source ~/.zshrc` → `claude-anti` lại |
+| `claude-anti` hiện "Not logged in" | API key bị reject bởi Claude Code | Script đã tự xử lý; nếu còn lỗi → xem mục Reset |
+| "Do you want to use this API key?" | Lần đầu dùng API key | Chọn **1. Yes** (chỉ 1 lần) |
 | `curl: connection refused` | Antigravity proxy không chạy | Mở Antigravity Manager app |
-| Model not available | Plan không hỗ trợ model | Đổi `model` trong settings.json |
+| `claude-real` hiện "Sonnet 4" thay vì "Opus 4.6" | settings.json có model cũ | Đảm bảo `claude-real` ghi `{}` (không chỉ model) |
+| "Effort not supported for..." | Model bị coi là Custom | Dùng `/model` → chọn **1. Default** |
 
 ### Reset hoàn toàn
 
@@ -381,11 +402,22 @@ rm -f ~/.claude.json.backup ~/.claude-keychain.bak
 # 2. Xóa settings
 echo '{}' > ~/.claude/settings.json
 
-# 3. Mở Claude Code và login lại
+# 3. Xóa rejected keys
+python3 -c "
+import json, os
+f = os.path.expanduser('~/.claude.json')
+d = json.load(open(f))
+d.setdefault('customApiKeyResponses', {})['rejected'] = []
+d['hasCompletedOnboarding'] = True
+json.dump(d, open(f, 'w'), indent=2)
+print('✅ Reset done')
+"
+
+# 4. Mở Claude Code và login lại (nếu dùng Team)
 claude
 # → /login → đăng nhập → /exit
 
-# 4. Giờ dùng bình thường
+# 5. Giờ dùng bình thường
 source ~/.zshrc
 claude-anti   # hoặc claude-real
 ```
@@ -399,7 +431,7 @@ claude-anti   # hoặc claude-real
 | File | Mục đích | Scope |
 |------|----------|-------|
 | `~/.claude/settings.json` | API URL, API key, model, env vars | Global runtime |
-| `~/.claude.json` | OAuth account, preferences, onboarding | Global persistent |
+| `~/.claude.json` | OAuth account, preferences, onboarding, API key approval | Global persistent |
 | `~/.claude/ide/*.lock` | IDE detection, WebSocket transport | Runtime (per-IDE) |
 | `~/.claude-switch.py` | Script chuyển đổi | Utility |
 
@@ -427,10 +459,23 @@ Password: {"claudeAiOauth":{"accessToken":"sk-ant-oat01-...", "refreshToken":"..
 ### settings.json — Real mode
 
 ```json
+{}
+```
+
+> Claude Team mặc định dùng Opus 4.6. Không chỉ định model để tránh bị coi là "Custom model".
+
+### .claude.json — customApiKeyResponses
+
+```json
 {
-  "model": "claude-opus-4-6-thinking"
+  "customApiKeyResponses": {
+    "approved": ["sk-..."],
+    "rejected": []
+  }
 }
 ```
+
+> Script tự quản lý field này khi chạy `claude-anti`. API key phải nằm trong `approved`, không nằm trong `rejected`.
 
 ### Credential Storage (Cross-platform)
 
