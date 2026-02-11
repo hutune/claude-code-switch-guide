@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Valentine's Day</title>
+    <meta name="description" content="A romantic Valentine's Day gift for you, my love.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Quicksand:wght@300;400;500;600;700&family=Great+Vibes&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loader" class="loader">
+        <div class="loader-heart">
+            <svg viewBox="0 0 32 29.6" width="60" height="60">
+                <path fill="currentColor"
+                    d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z" />
+            </svg>
+        </div>
+        <p class="loader-text">Loading...</p>
+    </div>
+
+    <!-- Background Effects -->
+    <div id="hearts-container" aria-hidden="true"></div>
+    <canvas id="sparkle-canvas" aria-hidden="true"></canvas>
+
+    <!-- Side Navigation -->
+    <nav id="side-nav" class="side-nav" aria-label="Section navigation">
+        <a href="#hero" class="side-nav-dot active" data-section="hero" aria-label="Hero"></a>
+        <a href="#letter" class="side-nav-dot" data-section="letter" aria-label="Love Letter"></a>
+        <a href="#reasons" class="side-nav-dot" data-section="reasons" aria-label="Reasons"></a>
+        <a href="#memories" class="side-nav-dot" data-section="memories" aria-label="Memories"></a>
+        <a href="#wish" class="side-nav-dot" data-section="wish" aria-label="Countdown"></a>
+    </nav>
+
+    <!-- Music Toggle -->
+    <button class="music-toggle" id="music-toggle" aria-label="Bật/tắt nhạc">
+        <svg class="music-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13" />
+            <circle cx="6" cy="18" r="3" />
+            <circle cx="18" cy="16" r="3" />
+        </svg>
+        <span class="music-status"></span>
+    </button>
+    <audio id="bg-music" loop preload="auto">
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Cursor Glow (Desktop) -->
+    <div class="cursor-glow" id="cursor-glow"></div>
+
+    <!-- ===== HERO ===== -->
+    <section id="hero" class="section hero">
+        <div class="hero-content">
+            <div class="hero-badge">14.02.2026</div>
+            <h1 class="hero-title">
+                <span class="title-line">Happy</span>
+                <span class="title-line cursive">Valentine's Day</span>
+            </h1>
+            <p class="hero-subtitle">Gửi đến người anh yêu thương nhất</p>
+            <div class="hero-countdown" id="hero-countdown">
+                <div class="hc-item">
+                    <span class="hc-num" id="days">00</span>
+                    <span class="hc-label">Ngày</span>
+                </div>
+                <span class="hc-sep">:</span>
+                <div class="hc-item">
+                    <span class="hc-num" id="hours">00</span>
+                    <span class="hc-label">Giờ</span>
+                </div>
+                <span class="hc-sep">:</span>
+                <div class="hc-item">
+                    <span class="hc-num" id="minutes">00</span>
+                    <span class="hc-label">Phút</span>
+                </div>
+                <span class="hc-sep">:</span>
+                <div class="hc-item">
+                    <span class="hc-num" id="seconds">00</span>
+                    <span class="hc-label">Giây</span>
+                </div>
+            </div>
+            <div class="hero-valentine-msg" id="valentine-message" style="display:none;">
+                <p class="valentine-text">Happy Valentine's Day! ❤️</p>
+                <p class="valentine-sub">Chúc em ngày Valentine thật hạnh phúc!</p>
+            </div>
+            <button class="scroll-indicator" aria-label="Scroll down">
+                <span>Cuộn xuống</span>
+                <div class="scroll-arrow">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                </div>
+            </button>
+        </div>
+    </section>
+
+    <!-- ===== LOVE LETTER ===== -->
+    <section id="letter" class="section letter-section">
+        <div class="container">
+            <h2 class="section-title reveal">Thư Gửi Em</h2>
+            <div class="letter-card reveal" id="letter-card">
+                <!-- Sealed state -->
+                <div class="letter-sealed" id="letter-sealed">
+                    <div class="letter-sealed-inner">
+                        <div class="seal-ornament seal-ornament--top"></div>
+                        <div class="seal-ornament seal-ornament--bottom"></div>
+                        <p class="sealed-to">Gửi em yêu</p>
+                        <button class="wax-seal" id="wax-seal" aria-label="Mở thư">
+                            <svg viewBox="0 0 32 29.6" width="28" height="28">
+                                <path fill="currentColor"
+                                    d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z" />
+                            </svg>
+                        </button>
+                        <p class="sealed-hint">Nhấn để mở</p>
+                    </div>
+                </div>
+                <!-- Letter content (hidden initially) -->
+                <div class="letter-opened" id="letter-opened">
+                    <div class="letter-paper-v2">
+                        <div class="letter-corner letter-corner--tl"></div>
+                        <div class="letter-corner letter-corner--tr"></div>
+                        <div class="letter-corner letter-corner--bl"></div>
+                        <div class="letter-corner letter-corner--br"></div>
+                        <div class="letter-body">
+                            <p class="letter-greeting">Em yêu,</p>
+                            <p>Anh viết những dòng này để em biết rằng, mỗi ngày trôi qua bên em đều là rực rỡ nhất.</p>
+                            <p>Em không chỉ là người yêu của anh, em còn là người bạn thân nhất, là nguồn động lực, là
+                                pin sạc trong những ngày anh mệt mỏi.</p>
+                            <p>Cảm ơn em đã luôn ở bên anh, yêu anh bằng cách riêng của em. Anh hứa sẽ luôn trân trọng
+                                và yêu thương em mỗi ngày.</p>
+                            <p class="letter-closing">Thương em thật nhiều,<br><span class="letter-signature">Anh -
+                                    hutune ❤️</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== REASONS I LOVE YOU (Cards generated by JS) ===== -->
+    <section id="reasons" class="section reasons-section">
+        <div class="container">
+            <h2 class="section-title reveal">10 Lý Do Anh Yêu Em</h2>
+            <div class="carousel reveal" id="carousel">
+                <button class="carousel-btn carousel-prev" aria-label="Previous">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                </button>
+                <button class="carousel-btn carousel-next" aria-label="Next">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 6 15 12 9 18" />
+                    </svg>
+                </button>
+                <div class="carousel-viewport">
+                    <div class="carousel-track" id="carousel-track">
+                        <!-- Slides generated by JS -->
+                    </div>
+                </div>
+                <div class="carousel-dots" id="carousel-dots">
+                    <!-- Dots generated by JS -->
+                </div>
+                <div class="carousel-progress">
+                    <div class="carousel-progress-bar" id="carousel-progress-bar"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== MEMORIES ===== -->
+    <section id="memories" class="section memories-section">
+        <div class="container">
+            <h2 class="section-title reveal">Khoảnh Khắc Của Chúng Mình</h2>
+            <div class="gallery-grid reveal">
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <span class="placeholder-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                        </span>
+                        <span class="placeholder-text">Ảnh kỷ niệm 1</span>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <span class="placeholder-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                        </span>
+                        <span class="placeholder-text">Ảnh kỷ niệm 2</span>
+                    </div>
+                </div>
+                <div class="gallery-item gallery-item--featured">
+                    <div class="gallery-placeholder">
+                        <span class="placeholder-icon">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                        </span>
+                        <span class="placeholder-text">Ảnh kỷ niệm 3</span>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <span class="placeholder-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                        </span>
+                        <span class="placeholder-text">Ảnh kỷ niệm 4</span>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <span class="placeholder-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                            </svg>
+                        </span>
+                        <span class="placeholder-text">Ảnh kỷ niệm 5</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== PROMISE ===== -->
+    <section id="wish" class="section wish-section">
+        <div class="container">
+            <div class="wish-card reveal">
+                <h2 class="wish-title">Hi Vọng Của Anh</h2>
+                <div class="wish-promise">
+                    <p>Anh hi vọng sẽ luôn được yêu em và ở bên em,<br>hôm nay, ngày mai và mãi mãi về sau.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <p class="footer-text">Made with ❤️ for midine</p>
+        <p class="footer-year">Valentine's Day 2026</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

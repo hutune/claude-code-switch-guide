@@ -31,7 +31,7 @@ claude-real    # Claude Team (paid)
 
 - macOS 13+ (Ventura)
 - [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) v2.1+
-- [Antigravity Manager](https://antigravity.tools) v4.0+
+- [Antigravity Manager](https://github.com/lbjlaq/Antigravity-Manager) v4.0+
 - Python 3.8+
 
 ## License

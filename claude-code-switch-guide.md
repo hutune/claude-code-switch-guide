@@ -59,7 +59,7 @@ claude
 
 ## 3. Cài đặt Antigravity Manager
 
-1. Tải Antigravity Manager từ [antigravity.tools](https://antigravity.tools)
+1. Tải Antigravity Manager từ [GitHub](https://github.com/lbjlaq/Antigravity-Manager)
 2. Cài đặt và mở app
 3. Đăng nhập tài khoản Antigravity
 4. Đảm bảo proxy đang chạy (icon xanh trên menu bar)
